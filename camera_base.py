@@ -1,3 +1,10 @@
+'''
+Author: abner
+Date: 2025-10-16 16:00:12
+LastEditTime: 2025-10-16 16:19:59
+Description: 
+FilePath: /Demo_1016/camera_test/camera_base.py
+'''
 import cv2
 import datetime
 
@@ -21,6 +28,17 @@ class Camera:
             print("无法打开相机")
             return False
         return True
+
+    def get_frame(self):
+        if not self.initialize():
+            return 
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+
+            yield frame
+        self.cleanup()
 
     def run(self):
         if not self.initialize():
