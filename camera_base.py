@@ -1,15 +1,11 @@
-'''
-Author: abner
-Date: 2025-10-16 16:00:12
-LastEditTime: 2025-10-16 16:19:59
-Description: 
-FilePath: /Demo_1016/camera_test/camera_base.py
-'''
 import cv2
 import datetime
+import yaml
+import numpy as np
+from camera_test.load_cam_params import load_camera_intrinsics 
 
 class Camera:
-    def __init__(self, device, width=640, height=480, fps=30):
+    def __init__(self, device, width=640, height=480, fps=30, undistortion=False):
         self.device = device
         self.width = width
         self.height = height
@@ -17,6 +13,11 @@ class Camera:
         self.cap = None
         self.recording = False
         self.out = None
+        self.undistortion = undistortion
+        self.camera_matrix = None
+        self.dist_coeffs = None
+        if self.undistortion:
+            self.camera_matrix, self.dist_coeffs, self.proj_matrix = load_camera_intrinsics('head')
 
     def initialize(self):
         self.cap = cv2.VideoCapture(self.device)
@@ -36,7 +37,9 @@ class Camera:
             ret, frame = self.cap.read()
             if not ret:
                 break
-
+            if self.undistortion:
+                frame = cv2.undistort(frame, self.camera_matrix, self.dist_coeffs)
+ 
             yield frame
         self.cleanup()
 
@@ -47,6 +50,8 @@ class Camera:
             ret, frame = self.cap.read()
             if not ret:
                 break
+            if self.undistortion:
+                frame = cv2.undistort(frame, self.camera_matrix, self.dist_coeffs)    
             cv2.imshow('Camera', frame)
             if self.recording:
                 self.out.write(frame)

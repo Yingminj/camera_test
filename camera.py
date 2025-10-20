@@ -54,4 +54,4 @@ def start_camera(device, width=640, height=480, fps=30):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    start_camera(device="/dev/video2", fps=60)
+    start_camera(device="/dev/video0", fps=60)
